@@ -9,16 +9,22 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = "user"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    email = sqlalchemy.Column(sqlalchemy.String, nullable=False, index=True, unique=True)
     surname = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    gender = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+
+    gender = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("gender.id"), nullable=False)
+    goal = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("goal.id"), nullable=True, default=2)
+
     age = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     weight = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     height = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    goal = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    email = sqlalchemy.Column(sqlalchemy.String, nullable=False, index=True, unique=True)
-    is_admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False)
+
+    is_admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=False)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+
+    gender_obj = sqlalchemy.orm.relationship("Gender")
+    goal_obj = sqlalchemy.orm.relationship("Goal")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

@@ -1,5 +1,7 @@
 from flask_restful import Resource, abort, reqparse
 from flask import jsonify
+from pygments.lexer import default
+
 from . import db_session
 from .User import User
 
@@ -9,12 +11,12 @@ parser = reqparse.RequestParser()
 parser.add_argument("surname", required=True)
 parser.add_argument("name", required=True)
 parser.add_argument("age", required=True, type=int)
-parser.add_argument("gender", required=True)
+parser.add_argument("gender", required=True, type=int)
 parser.add_argument("weight", required=True, type=int)
 parser.add_argument("height", required=True, type=int)
-parser.add_argument("goal", required=True, type=int)
+parser.add_argument("goal", required=False, type=int)
 parser.add_argument("email", required=True)
-parser.add_argument("is_admin", required=True, type=bool)
+parser.add_argument("is_admin", required=False, type=bool, default=False)
 parser.add_argument("password", required=True)
 
 

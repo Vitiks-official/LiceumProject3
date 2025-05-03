@@ -1,1 +1,1 @@
-from . import User, Product
+from . import Goal, Gender, User, Product
