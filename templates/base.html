@@ -25,18 +25,12 @@
             <li><a href="/services">Статьи</a></li>
         </ul>
         <div class="navbar-right">
-            <a href="/settings" class="user-link">
-                {% if name and surname %}
-                    <div class="user-info">
-                        {{ name }}<br>{{ surname }}
-                    </div>
-                {% endif %}
+            <a href="/profile" class="user-link">
+                <div class="user-info">
+                    {{ current_user.name }}<br>{{ current_user.surname }}
+                </div>
                 <div class="account-avatar">
-                    {% if user_avatar %}
-                        <img src="{{ user_avatar }}" alt="Аватар">
-                    {% else %}
-                        <span></span>
-                    {% endif %}
+                    <img src="{{ avatar_url }}" alt="VwV">
                 </div>
             </a>
         </div>

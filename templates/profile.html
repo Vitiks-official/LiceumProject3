@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile_style.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="main-container">
+        <form method="POST" enctype="multipart/form-data">
+            <h2>Профиль</h2>
+            {{ form.hidden_tag() }}
+
+            <p class="user-data main-par">{{ current_user.name }} {{ current_user.surname }}</p>
+
+            <div class="form-group" style="margin-bottom: 5px;">
+                <div class="big-avatar account-avatar">
+                    <img src="{{ avatar_url }}" alt="VwV">
+                </div>
+
+                <div class="file-upload-wrapper">
+                    <button type="button" class="custom-file-button">Выбрать файл</button>
+                    <span class="custom-file-name">Файл не выбран</span>
+                    {{ form.avatar(class="form-control-file", style="display: none;", accept="image/*") }}
+                </div>
+            </div>
+
+            <p class="user-data main-par">Индекс массы тела: {{ imt }} - {{ result }}</p>
+
+            <div class="form-group">
+                <label>Цель</label>
+                {{ form.goal(class="form-control") }}
+                {% for error in form.goal.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="horizontal-fields">
+                <div class="form-field">
+                    <label>Рост, см</label>
+                    {{ form.height(class="form-control") }}
+                    {% for error in form.height.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-field">
+                    <label>Вес, кг</label>
+                    {{ form.weight(class="form-control") }}
+                    {% for error in form.weight.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-field">
+                    <label>Возраст</label>
+                    {{ form.age(class="form-control") }}
+                    {% for error in form.age.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 30px;">Сохранить изменения</button>
+
+            <div class="action-buttons">
+                <a href="/logout" class="btn btn-secondary">Выйти</a>
+                <a href="/delete" class="btn btn-danger">Удалить аккаунт</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('.form-control-file');
+            const fileButton = document.querySelector('.custom-file-button');
+            const fileNameSpan = document.querySelector('.custom-file-name');
+
+            if (fileInput && fileButton && fileNameSpan) {
+                fileButton.addEventListener('click', function() {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files.length > 0) {
+                        fileNameSpan.textContent = this.files[0].name;
+                    } else {
+                        fileNameSpan.textContent = 'Файл не выбран';
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

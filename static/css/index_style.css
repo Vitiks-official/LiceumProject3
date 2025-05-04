@@ -107,12 +107,6 @@
     font-size: 0.9em;
 }
 
-h2 {
-    color: #95cf92;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
 .telegram-link {
     display: inline-flex;
     align-items: center;
