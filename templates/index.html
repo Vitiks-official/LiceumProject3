@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="main-container">
+        <div class="content-section">
+            <div class="header-section">
+                <h2>Приветствуем в Vital Stats!</h2>
+                <p class="main-par">описание описание описание описание описание описание описание описание описание описание описание
+                    описание описание описание описание описание описание описание описание описание описание.</p>
+                <a href="https://t.me/your_telegram_channel" target="_blank" class="telegram-link">
+                    <img src="{{ url_for('static', filename='img/telegram.png') }}" class="telegram-logo">
+                    <div class="telegram-label">Наш Telegram-бот</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="left-panel">
+                <h2>Ваш прогресс</h2>
+                <div class="progress-bars-grid">
+                    <div class="progress-bar-container">
+                        <label for="calories">Калории</label>
+                        <div class="progress-bar">
+                            <div id="calories" class="progress-fill" style="width: 70%;"></div>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <label for="protein">Белки</label>
+                        <div class="progress-bar">
+                            <div id="protein" class="progress-fill" style="width: 50%; background-color: #f08080;"></div>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <label for="fat">Жиры</label>
+                        <div class="progress-bar">
+                            <div id="fat" class="progress-fill" style="width: 90%; background-color: #f9cb9c;"></div>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <label for="carbs">Углеводы</label>
+                        <div class="progress-bar">
+                            <div id="carbs" class="progress-fill" style="width: 30%; background-color: #a8dadc;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="con-con">
+                    <div class="chart-container">
+                        <canvas id="bjuChart"></canvas>
+                    </div>
+                </div>
+
+                <button class="btn-primary">
+                    <img src="{{ url_for('static', filename='img/plus.png') }}" class="btn-icon">Добавить прием пищи
+                </button>
+            </div>
+
+            <div class="right-panel">
+                <h2>Статьи</h2>
+                {% for article in articles %}
+                    <div class="article-preview">
+                        <h3>{{ article.title }}</h3>
+                        <p class="article-description">{{ article.description }}</p>
+                        <a href="#" class="read-more-link">Читать далее</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bjuChartCanvas = document.getElementById('bjuChart');
+
+        if (bjuChartCanvas) {
+            const bjuData = {
+                labels: ['Белки', 'Жиры', 'Углеводы'],
+                datasets: [{
+                    data: [30, 25, 45], // Замените на фактические значения БЖУ в процентах или граммах
+                    backgroundColor: ['#f08080', '#f9cb9c', '#a8dadc'], // Цвета для сегментов
+                    hoverOffset: 4
+                }]
+            };
+
+            const bjuChart = new Chart(bjuChartCanvas, {
+                type: 'pie',
+                data: bjuData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right', // Расположение легенды
+                            labels: {
+                                font: {
+                                    size: 12,
+                                    family: 'BubbleSans, sans-serif'
+                                },
+                                color: '#555'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (context.parsed !== null) {
+                                        label += ': ' + context.parsed + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+    </script>
+{% endblock %}

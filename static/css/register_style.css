@@ -39,11 +39,11 @@ form {
 
 .form-row {
     display: flex;
-    gap: 20px; /* Расстояние между колонками */
+    gap: 20px;
 }
 
 .form-col {
-    flex: 1; /* Равномерное распределение места между колонками */
+    flex: 1;
 }
 
 label {
@@ -117,7 +117,7 @@ label {
 
 .logo-container {
     text-align: center;
-    margin-bottom: 0px;
+    margin-bottom: 15px;
 }
 
 .logo {

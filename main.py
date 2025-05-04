@@ -74,9 +74,10 @@ def main():
 @app.route("/")
 @app.route("/index")
 def index():
-    if current_user.is_authenticated:
-        return f"hi {current_user.name} ^w^"
-    return redirect("/login")
+    if not current_user.is_authenticated:
+        return redirect("/login")
+
+    return render_template("index.html", name=current_user.name, surname=current_user.surname)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -195,9 +196,15 @@ def cancel_verification():
     return redirect("/register")
 
 
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect("/")
+
+
 def send_verification_email(email, code):
-    msg = Message('Подтверждение регистрации', recipients=[email])
-    msg.body = f'Ваш код подтверждения: {code}'
+    msg = Message("Подтверждение регистрации", recipients=[email])
+    msg.body = f"Ваш код подтверждения: {code}"
     mail.send(msg)
 
 

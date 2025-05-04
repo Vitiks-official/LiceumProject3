@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base_style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <title>{% block title %}{% endblock %}</title>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <div class="navbar-logo">
+                <a href="/"><img class="logo" src="{{ url_for('static', filename='img/logo_light.png') }}"></a>
+            </div>
+        </div>
+        <ul class="my-navbar-nav">
+            <li><a href="/">Главная</a></li>
+            <li><a href="/contact">Добавить прием пищи</a></li>
+            <li><a href="/about">Статистика</a></li>
+            <li><a href="/services">Статьи</a></li>
+        </ul>
+        <div class="navbar-right">
+            <a href="/settings" class="user-link">
+                {% if name and surname %}
+                    <div class="user-info">
+                        {{ name }}<br>{{ surname }}
+                    </div>
+                {% endif %}
+                <div class="account-avatar">
+                    {% if user_avatar %}
+                        <img src="{{ user_avatar }}" alt="Аватар">
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+    </nav>
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>
