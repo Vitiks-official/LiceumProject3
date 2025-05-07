@@ -11,9 +11,9 @@ class RegisterForm(FlaskForm):
 
     age = IntegerField("Возраст", validators=[DataRequired(), NumberRange(min=5, max=200,
                                                                           message="Возраст - число от 5 до 200!")])
-    weight = IntegerField("Вес", validators=[DataRequired(), NumberRange(min=10, max=600,
+    weight = IntegerField("Вес, кг", validators=[DataRequired(), NumberRange(min=10, max=600,
                                                                          message="Вес - число от 10 до 600!")])
-    height = IntegerField("Рост", validators=[DataRequired(), NumberRange(min=50, max=300,
+    height = IntegerField("Рост, см", validators=[DataRequired(), NumberRange(min=50, max=300,
                                                                           message="Рост - число от 50 до 300!")])
     gender = SelectField("Пол", choices=[(1, "Мужской"), (2, "Женский")])
 

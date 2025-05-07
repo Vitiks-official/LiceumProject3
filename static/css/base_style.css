@@ -3,6 +3,10 @@
     src: url('../fonts/BubbleSans-Regular.otf');
 }
 
+* {
+  outline: 1px solid transparent !important;
+}
+
 body {
     font-family: 'BubbleSans', sans-serif;
     margin: 0;
@@ -121,13 +125,18 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 18px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
     margin-top: 12px;
     width: 100%;
 }
 
 .btn-primary:hover {
     background-color: #8ABF87;
+}
+
+.btn-primary:active {
+    background-color: #8ABF87 !important;
+    transform: scale(0.98);
 }
 
 .main-par {

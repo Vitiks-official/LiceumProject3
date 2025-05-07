@@ -28,12 +28,22 @@
 
             <p class="user-data main-par">Индекс массы тела: {{ imt }} - {{ result }}</p>
 
-            <div class="form-group">
-                <label>Цель</label>
-                {{ form.goal(class="form-control") }}
-                {% for error in form.goal.errors %}
-                    <span class="error-message">{{ error }}</span>
-                {% endfor %}
+            <div class="horizontal-fields" style="margin-bottom: 15px;">
+                <div class="form-field">
+                    <label>Цель</label>
+                    {{ form.goal(class="form-control") }}
+                    {% for error in form.goal.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-field">
+                    <label>Образ жизни</label>
+                    {{ form.lifestyle(class="form-control") }}
+                    {% for error in form.lifestyle.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
             </div>
 
             <div class="horizontal-fields">

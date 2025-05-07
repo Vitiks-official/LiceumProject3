@@ -8,11 +8,11 @@ class Statistics(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"), nullable=False)
-    date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)\
+    date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
 
-    calories = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    proteins = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    fats = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    carbohydrates = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    calories = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+    proteins = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+    fats = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+    carbohydrates = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
 
     user_obj = sqlalchemy.orm.relationship("User")

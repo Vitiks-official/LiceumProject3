@@ -5,9 +5,12 @@ from flask_restful import Api
 
 from data.User import User
 from data.Product import Product
+from data.Statistics import Statistics
+from data.Lifestyle import Lifestyle
 from data.Gender import Gender
 from data.Goal import Goal
 import data.db_session as db_session
+import sqlalchemy
 
 from data.UserResource import UserResource, UserListResource
 from data.ProductResource import ProductResource, ProductListResource
@@ -18,7 +21,9 @@ from forms.VerificationForm import VerificationForm
 from forms.EditProfileForm import EditProfileForm
 
 import requests
+import datetime
 import random
+import json
 import os
 
 app = Flask(__name__)
@@ -59,17 +64,38 @@ def main():
             Gender(gender="Женский")
         ]
         db_sess.add_all(genders)
-        db_sess.commit()
 
     if not db_sess.query(Goal).first():
         goals = [
-            Goal(goal="Сбросить вес", coefficient=0.9),
-            Goal(goal="Поддерживать вес", coefficient=1),
-            Goal(goal="Набрать вес", coefficient=1.1)
+            Goal(goal="Сбросить вес", addition=-500),
+            Goal(goal="Поддерживать вес", addition=0),
+            Goal(goal="Набрать вес", addition=500)
         ]
         db_sess.add_all(goals)
-        db_sess.commit()
 
+    if not db_sess.query(Lifestyle).first():
+        lifestyles = [
+            Lifestyle(lifestyle="Сидячий образ жизни", coefficient=1.2),
+            Lifestyle(lifestyle="Низкая активность", coefficient=1.375),
+            Lifestyle(lifestyle="Умеренная активность", coefficient=1.55),
+            Lifestyle(lifestyle="Высокая активность", coefficient=1.725),
+            Lifestyle(lifestyle="Очень высокая активность", coefficient=1.9)
+        ]
+        db_sess.add_all(lifestyles)
+
+    if not db_sess.query(Product).first():
+        with open("db/products.json", "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        for product in data:
+            proteins, fats, carbohydrates = list(map(float, product["bgu"].split(",")))
+            db_sess.add(Product(name=product["name"],
+                                calories=int(float(product["kcal"])),
+                                proteins=proteins,
+                                fats=fats,
+                                carbohydrates=carbohydrates))
+
+    db_sess.commit()
     app.run()
 
 
@@ -79,7 +105,25 @@ def index():
     if not current_user.is_authenticated:
         return redirect("/login")
 
-    return render_template("index.html", avatar_url=get_avatar_url())
+    db_sess = db_session.create_session()
+
+    stat = db_sess.query(Statistics).filter(Statistics.user == current_user.id,
+                                            Statistics.date == datetime.date.today()).first()
+    if stat:
+        values = (stat.calories, stat.proteins, stat.fats, stat.carbohydrates)
+        progress = [round(value / norm * 100) for value, norm in zip(values, get_norms())]
+        progress = [100 if x > 100 else x for x in progress]
+
+        all_pfc = stat.proteins + stat.fats + stat.carbohydrates
+        ratios = [str(round(x / all_pfc * 100)) for x in (stat.proteins, stat.fats, stat.carbohydrates)]
+
+        pairs = [f"{value}/{norm}" for value, norm in zip(values, get_norms())]
+    else:
+        progress = [0] * 4
+        ratios = ["33", "33", "33"]
+        pairs = [f"0/{norm}" for norm in get_norms()]
+
+    return render_template("index.html", avatar_url=get_avatar_url(), progress=progress, ratios=ratios, pairs=pairs)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -227,6 +271,7 @@ def profile_settings():
         user = db_sess.query(User).get(current_user.id)
 
         user.goal = form.goal.data
+        user.lifestyle = form.lifestyle.data
         user.height = form.height.data
         user.weight = form.weight.data
         user.age = form.age.data
@@ -235,6 +280,101 @@ def profile_settings():
         return redirect("/profile")
 
     return render_template("profile.html", form=form, avatar_url=get_avatar_url(), imt=imt, result=result)
+
+
+@login_required
+@app.route("/add_meal")
+def add_meal():
+    search = request.args.get("search", "")
+
+    db_sess = db_session.create_session()
+    products = db_sess.query(Product).filter(Product.name.like(f"%{search.lower()}%"))
+
+    delete_id = request.args.get("remove_id", "")
+
+    add_id = request.args.get("add_id", "")
+    add_mass = request.args.get("add_mass", "")
+    choice = request.args.get("choice", "")
+
+    choice_dict = dict()
+    if choice:
+        pairs = [x.split("_") for x in choice.split("$")]
+        for id_, mass in pairs:
+            choice_dict[id_] = int(mass)
+
+    if delete_id:
+        choice_dict.pop(delete_id)
+        new_choice = "$".join([f"{id_}_{mass}" for id_, mass in list(choice_dict.items())])
+
+        return redirect(f"/add_meal?search={search}&choice={new_choice}")
+
+    if add_id:
+        choice_dict[add_id] = choice_dict.get(add_id, 0) + int(add_mass)
+        new_choice = "$".join([f"{id_}_{mass}" for id_, mass in list(choice_dict.items())])
+
+        return redirect(f"/add_meal?search={search}&choice={new_choice}")
+
+    db_sess = db_session.create_session()
+    added_products = list()
+    total = {"calories": 0, "proteins": 0, "fats": 0, "carbohydrates": 0}
+    for id_ in choice_dict:
+        product = db_sess.query(Product).get(int(id_))
+        mass = choice_dict[id_]
+
+        total["calories"] += round(product.calories * mass * 0.01, 1)
+        total["proteins"] += round(product.proteins * mass * 0.01, 1)
+        total["fats"] += round(product.fats * mass * 0.01, 1)
+        total["carbohydrates"] += round(product.carbohydrates * mass * 0.01, 1)
+
+        added_products.append({
+            "name": product.name,
+            "mass": mass,
+            "id": product.id
+        })
+
+    return render_template("add_meal.html", avatar_url=get_avatar_url(), search_query=search,
+                           available_products=products, added_products=added_products, choice=choice, total=total)
+
+
+@login_required
+@app.route("/confirm_meal/<string:choice>")
+def confirm_meal(choice):
+    pairs = [[int(y) for y in x.split("_")] for x in choice.split("$")]
+    calories = proteins = fats = carbohydrates = 0
+
+    db_sess = db_session.create_session()
+    for id_, mass in pairs:
+        product = db_sess.query(Product).get(int(id_))
+        calories += product.calories * mass * 0.01
+        proteins += product.proteins * mass * 0.01
+        fats += product.fats * mass * 0.01
+        carbohydrates += product.carbohydrates * mass * 0.01
+
+    calories = round(calories, 1)
+    proteins = round(proteins, 1)
+    fats = round(fats, 1)
+    carbohydrates = round(carbohydrates, 1)
+
+    stat = db_sess.query(Statistics).filter(Statistics.date == datetime.date.today(),
+                                            Statistics.user == current_user.id).first()
+    if not stat:
+        stat = Statistics(
+            user=current_user.id,
+            date=datetime.date.today(),
+            calories=calories,
+            proteins=proteins,
+            fats=fats,
+            carbohydrates=carbohydrates
+        )
+        db_sess.add(stat)
+    else:
+        stat.calories += calories
+        stat.proteins += proteins
+        stat.fats += fats
+        stat.carbohydrates += carbohydrates
+
+    db_sess.commit()
+    return redirect("/")
 
 
 @app.route("/logout")
@@ -268,6 +408,23 @@ def get_avatar_url():
     if os.path.exists("static/" + path):
         return url_for("static", filename=path)
     return url_for("static", filename="img/avatar/default.png")
+
+
+def get_norms():
+    bmr = (10 * current_user.weight + 6.25 * current_user.height - 5 * current_user.age +
+           (5 if current_user.gender == 1 else -161))
+
+    db_sess = db_session.create_session()
+    bmr *= db_sess.query(Lifestyle).filter(Lifestyle.id == current_user.lifestyle).first().coefficient
+
+    bmr += db_sess.query(Goal).filter(Goal.id == current_user.goal).first().addition
+    bmr = round(bmr)
+
+    proteins = round(bmr * 0.25 / 4)
+    fats = round(bmr * 0.3 / 9)
+    carbohydrates = round(bmr * 0.45 / 4)
+
+    return bmr, proteins, fats, carbohydrates
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     gender = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("gender.id"), nullable=False)
     goal = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("goal.id"), nullable=True, default=2)
+    lifestyle = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("lifestyle.id"), nullable=True, default=3)
 
     age = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     weight = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
@@ -25,6 +26,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     gender_obj = sqlalchemy.orm.relationship("Gender")
     goal_obj = sqlalchemy.orm.relationship("Goal")
+    lifestyle_obj = sqlalchemy.orm.relationship("Lifestyle")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

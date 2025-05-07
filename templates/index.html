@@ -26,27 +26,27 @@
                 <h2>Ваш прогресс</h2>
                 <div class="progress-bars-grid">
                     <div class="progress-bar-container">
-                        <label for="calories">Калории</label>
+                        <label for="calories">Калории, {{ pairs[0] }}</label>
                         <div class="progress-bar">
-                            <div id="calories" class="progress-fill" style="width: 70%;"></div>
+                            <div id="calories" class="progress-fill" style="width: {{ progress[0] }}%;"></div>
                         </div>
                     </div>
                     <div class="progress-bar-container">
-                        <label for="protein">Белки</label>
+                        <label for="protein">Белки, {{ pairs[1] }} г</label>
                         <div class="progress-bar">
-                            <div id="protein" class="progress-fill" style="width: 50%; background-color: #f08080;"></div>
+                            <div id="protein" class="progress-fill" style="width: {{ progress[1] }}%; background-color: #f08080;"></div>
                         </div>
                     </div>
                     <div class="progress-bar-container">
-                        <label for="fat">Жиры</label>
+                        <label for="fat">Жиры, {{ pairs[2] }} г</label>
                         <div class="progress-bar">
-                            <div id="fat" class="progress-fill" style="width: 90%; background-color: #f9cb9c;"></div>
+                            <div id="fat" class="progress-fill" style="width: {{ progress[2] }}%; background-color: #f9cb9c;"></div>
                         </div>
                     </div>
                     <div class="progress-bar-container">
-                        <label for="carbs">Углеводы</label>
+                        <label for="carbs">Углеводы, {{ pairs[3] }} г</label>
                         <div class="progress-bar">
-                            <div id="carbs" class="progress-fill" style="width: 30%; background-color: #a8dadc;"></div>
+                            <div id="carbs" class="progress-fill" style="width: {{ progress[3] }}%; background-color: #a8dadc;"></div>
                         </div>
                     </div>
                 </div>
@@ -57,9 +57,9 @@
                     </div>
                 </div>
 
-                <button class="btn-primary">
+                <a href="/add_meal" class="btn btn-primary">
                     <img src="{{ url_for('static', filename='img/plus.png') }}" class="btn-icon">Добавить прием пищи
-                </button>
+                </a>
             </div>
 
             <div class="right-panel">
@@ -84,7 +84,7 @@
             const bjuData = {
                 labels: ['Белки', 'Жиры', 'Углеводы'],
                 datasets: [{
-                    data: [30, 25, 45], // Замените на фактические значения БЖУ в процентах или граммах
+                    data: [{{ ', '.join(ratios) }}],
                     backgroundColor: ['#f08080', '#f9cb9c', '#a8dadc'], // Цвета для сегментов
                     hoverOffset: 4
                 }]

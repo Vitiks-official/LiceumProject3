@@ -1,1 +1,1 @@
-from . import Goal, Gender, User, Product
+from . import Goal, Gender, User, Product, Statistics, Lifestyle

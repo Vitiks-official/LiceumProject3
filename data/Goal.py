@@ -7,4 +7,6 @@ class Goal(SqlAlchemyBase):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     goal = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    coefficient = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+    addition = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+
+
