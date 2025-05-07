@@ -10,7 +10,6 @@ from data.Lifestyle import Lifestyle
 from data.Gender import Gender
 from data.Goal import Goal
 import data.db_session as db_session
-import sqlalchemy
 
 from data.UserResource import UserResource, UserListResource
 from data.ProductResource import ProductResource, ProductListResource
@@ -22,6 +21,7 @@ from forms.EditProfileForm import EditProfileForm
 
 import requests
 import datetime
+import decimal
 import random
 import json
 import os
@@ -89,7 +89,7 @@ def main():
 
         for product in data:
             proteins, fats, carbohydrates = list(map(float, product["bgu"].split(",")))
-            db_sess.add(Product(name=product["name"],
+            db_sess.add(Product(name=product["name"].lower(),
                                 calories=int(float(product["kcal"])),
                                 proteins=proteins,
                                 fats=fats,
@@ -368,13 +368,31 @@ def confirm_meal(choice):
         )
         db_sess.add(stat)
     else:
-        stat.calories += calories
-        stat.proteins += proteins
-        stat.fats += fats
-        stat.carbohydrates += carbohydrates
+        stat.calories += decimal.Decimal(calories)
+        stat.proteins += decimal.Decimal(proteins)
+        stat.fats += decimal.Decimal(fats)
+        stat.carbohydrates += decimal.Decimal(carbohydrates)
 
     db_sess.commit()
     return redirect("/")
+
+
+@login_required
+@app.route("/statistics")
+def statistics():
+    db_sess = db_session.create_session()
+    stats = db_sess.query(Statistics).filter(Statistics.user == current_user.id).all()
+
+    dates = [""] + [str(x.date) for x in stats] + [""]
+
+    calories_consumption = [0] + [x.calories for x in stats] + [0]
+    proteins_consumption = [0] + [x.proteins for x in stats] + [0]
+    fats_consumption = [0] + [x.fats for x in stats] + [0]
+    carbohydrates_consumption = [0] + [x.carbohydrates for x in stats] + [0]
+
+    return render_template("statistics.html", avatar_url=get_avatar_url(), norms=get_norms(), dates=dates,
+                           calorie_data=calories_consumption, protein_data=proteins_consumption,
+                           fat_data=fats_consumption, carbs_data=carbohydrates_consumption)
 
 
 @app.route("/logout")

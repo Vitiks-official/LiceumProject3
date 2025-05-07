@@ -57,8 +57,8 @@
                     <form method="GET" action="/add_meal">
                         <div style="display: flex; height: 50px; padding: 0px 0px;">
                             <input type="text" name="search" class="form-control" placeholder="ПОИСК" value="{{ search_query }}" style="margin-right: 10px;">
-                            <button type="submit" class="btn btn-primary" style="margin-top: 0px; width: 55px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 0px; width: 55px; display: flex; justify-content: center; align-items: center;">
+                                <img src="{{ url_for('static', filename='img/magnifier.png') }}" class="btn-icon" style="margin: 0;">
                             </button>
                             {% if choice %}
                                 <input type="hidden" name="choice" value="{{ choice }}">
@@ -66,7 +66,9 @@
                         </div>
                     </form>
 
-                    <a href="/add_new_product" class="btn btn-primary" style="margin-top: 10px;">Добавить новый продукт</a>
+                    <a href="/add_new_product" class="btn btn-primary" style="margin-top: 10px;">
+                        <img src="{{ url_for('static', filename='img/plus.png') }}" class="btn-icon">Добавить новый продукт
+                    </a>
 
                 </div>
             </div>
@@ -134,7 +136,9 @@
                     </table>
 
                     <div style="text-align: center;">
-                        <a href="{{ '/confirm_meal/' + choice }}" class="btn btn-primary">Готово</a>
+                        <a href="{{ '/confirm_meal/' + choice }}" class="btn btn-primary">
+                            <img src="{{ url_for('static', filename='img/tick.png') }}" class="btn-icon">Готово
+                        </a>
                     </div>
                 </div>
 

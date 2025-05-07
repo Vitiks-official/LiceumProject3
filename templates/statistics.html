@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Статистика питания{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/statistics_style.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="main-container">
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="panel">
+                    <h2>Калории</h2>
+                    <canvas id="caloriesChart" class="chart"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="panel">
+                    <h2 style="color: #f08080">Белки</h2>
+                    <canvas id="proteinChart" class="chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="panel">
+                    <h2 style="color: #f9cb9c">Жиры</h2>
+                    <canvas id="fatChart" class="chart"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="panel">
+                    <h2 style="color: #a8dadc">Углеводы</h2>
+                    <canvas id="carbsChart" class="chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const createChart = (canvasId, labels, data, goal, color) => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Потреблено',
+                        data: data,
+                        backgroundColor: color,
+                        borderColor: color,
+                        borderWidth: 2
+                    }, {
+                        label: 'Норма',
+                        type: 'line',
+                        data: labels.map(() => goal),
+                        borderColor: 'rgba(77, 77, 77, 1)',
+                        backgroundColor: 'rgba(77, 77, 77, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        pointStyle: 'line',
+                        pointRadius: 0,
+                        lineTension: 0
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 12,
+                                    family: 'BubbleSans, sans-serif'
+                                },
+                                color: '#555'
+                            }
+                        },
+                        title: {
+                            display: false,
+                        }
+                    }
+                }
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Chart.defaults.font.family = 'BubbleSans, sans-serif';
+
+            createChart('caloriesChart', {{ dates|safe }}, {{ calorie_data|safe }}, {{ norms[0] }}, 'rgba(149, 207, 146, 0.7)');
+            createChart('proteinChart', {{ dates|safe }}, {{ protein_data|safe }}, {{ norms[1] }}, 'rgba(240, 128, 128, 0.7)');
+            createChart('fatChart', {{ dates|safe }}, {{ fat_data|safe }}, {{ norms[2] }}, 'rgba(249, 203, 156, 0.7)');
+            createChart('carbsChart', {{ dates|safe }}, {{ carbs_data|safe }}, {{ norms[3] }}, 'rgba(168, 218, 220, 0.7)');
+        });
+    </script>
+{% endblock %}

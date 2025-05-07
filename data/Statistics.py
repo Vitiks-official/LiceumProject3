@@ -10,9 +10,9 @@ class Statistics(SqlAlchemyBase, SerializerMixin):
     user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"), nullable=False)
     date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
 
-    calories = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
-    proteins = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
-    fats = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
-    carbohydrates = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+    calories = sqlalchemy.Column(sqlalchemy.Numeric(precision=10, scale=1), nullable=False)
+    proteins = sqlalchemy.Column(sqlalchemy.Numeric(precision=10, scale=1), nullable=False)
+    fats = sqlalchemy.Column(sqlalchemy.Numeric(precision=10, scale=1), nullable=False)
+    carbohydrates = sqlalchemy.Column(sqlalchemy.Numeric(precision=10, scale=1), nullable=False)
 
     user_obj = sqlalchemy.orm.relationship("User")

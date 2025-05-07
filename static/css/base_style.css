@@ -149,3 +149,9 @@ h2 {
     text-align: center;
     margin-bottom: 20px;
 }
+
+.btn-icon {
+    width: 20px;
+    height: auto;
+    margin-right: 8px;
+}

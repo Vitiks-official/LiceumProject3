@@ -70,11 +70,17 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="margin-top: 30px;">Сохранить изменения</button>
+            <button type="submit" class="btn btn-primary" style="margin-top: 30px;">
+                <img src="{{ url_for('static', filename='img/save.png') }}" class="btn-icon">Сохранить изменения
+            </button>
 
             <div class="action-buttons">
-                <a href="/logout" class="btn btn-secondary">Выйти</a>
-                <a href="/delete" class="btn btn-danger">Удалить аккаунт</a>
+                <a href="/logout" class="btn btn-secondary">
+                    <img src="{{ url_for('static', filename='img/logout.png') }}" class="btn-icon">Выйти
+                </a>
+                <a href="/delete" class="btn btn-danger">
+                    <img src="{{ url_for('static', filename='img/delete.png') }}" class="btn-icon">Удалить аккаунт
+                </a>
             </div>
         </form>
     </div>
