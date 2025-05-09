@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить новый продукт{% endblock %}
+
+{% block content %}
+    <div class="main-container">
+        <div class="content-section" style="flex: 0.5; justify-content: center; flex-direction: column; width: 550px; gap: 10px;">
+            <form method="POST" class="panel" style="flex: 0.5; text-align: center;">
+                <h2>Добавить новый продукт</h2>
+                <p class="main-par">
+                    Новый продукт будет доступен только Вам, пока его не рассмотрит администрация. Все величины указываются на 100 г продукта.
+                </p>
+
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    {{ form.product.label(class="label", style="font-weight: bold;") }}
+                    {{ form.product(class="form-control") }}
+                    {% if form.product.errors %}
+                        <ul class="errors">
+                            {% for error in form.product.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.calories.label(class="label", style="color: #95cf92; font-weight: bold;") }}
+                            {{ form.calories(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.fats.label(class="label", style="color: #f9cb9c; font-weight: bold;") }}
+                            {{ form.fats(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.proteins.label(class="label", style="color: #f08080; font-weight: bold;") }}
+                            {{ form.proteins(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.carbohydrates.label(class="label", style="color: #a8dadc; font-weight: bold;") }}
+                            {{ form.carbohydrates(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <p style="display: flex; flex-direction: row; justify-content: center; gap: 5px; margin-bottom: 0;">
+                    {{ form.is_public(style="width: 16px; height: 16px; margin-top: 3px;") }}{{ form.is_public.label }}
+                </p>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-check"></i>
+                    <span>{{ form.submit.label.text }}</span>
+                </button>
+            </form>
+
+            {% if message %}
+                <div class="alert alert-danger" role="alert">Неверный формат ввода величин!</div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

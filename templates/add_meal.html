@@ -18,17 +18,17 @@
                             <thead>
                                 <tr>
                                     <th style="width: 150px;">Продукт</th>
-                                    <th style="width: 50px;">К</th>
-                                    <th style="width: 50px;">Б</th>
-                                    <th style="width: 50px;">Ж</th>
-                                    <th style="width: 50px;">У</th>
+                                    <th style="width: 50px; color: #95cf92;">К</th>
+                                    <th style="width: 50px; color: #f08080;">Б</th>
+                                    <th style="width: 50px; color: #f9cb9c;">Ж</th>
+                                    <th style="width: 50px; color: #a8dadc;">У</th>
                                     <th style="width: 110px;">Масса, г</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for product in available_products %}
                                 <tr>
-                                    <td>{{ product.name }}</td>
+                                    <td style="word-wrap: break-word;">{{ product.name }}</td>
                                     <td>{{ product.calories }}</td>
                                     <td>{{ product.proteins }}</td>
                                     <td>{{ product.fats }}</td>
@@ -39,7 +39,9 @@
                                             <input type="hidden" name="add_id" value="{{ product.id }}">
                                             <div style="display: flex; align-items: center;">
                                                 <input type="number" name="add_mass" class="form-control form-control-sm" value="100" style="width: 60px; margin-right: 5px;" min="1" max="10000">
-                                                <button type="submit" class="btn btn-sm btn-table" style="background-color: #95cf92;">+</button>
+                                                <button type="submit" class="btn btn-sm btn-table" style="background-color: #95cf92;">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                </button>
                                             </div>
                                             {% if choice %}
                                                 <input type="hidden" name="choice" value="{{ choice }}">
@@ -58,7 +60,7 @@
                         <div style="display: flex; height: 50px; padding: 0px 0px;">
                             <input type="text" name="search" class="form-control" placeholder="ПОИСК" value="{{ search_query }}" style="margin-right: 10px;">
                             <button type="submit" class="btn btn-primary" style="margin-top: 0px; width: 55px; display: flex; justify-content: center; align-items: center;">
-                                <img src="{{ url_for('static', filename='img/magnifier.png') }}" class="btn-icon" style="margin: 0;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                             {% if choice %}
                                 <input type="hidden" name="choice" value="{{ choice }}">
@@ -66,8 +68,8 @@
                         </div>
                     </form>
 
-                    <a href="/add_new_product" class="btn btn-primary" style="margin-top: 10px;">
-                        <img src="{{ url_for('static', filename='img/plus.png') }}" class="btn-icon">Добавить новый продукт
+                    <a href="/add_product" class="btn btn-primary" style="margin-top: 10px;">
+                        <i class="fa-solid fa-plus fa-btn"></i>Добавить новый продукт
                     </a>
 
                 </div>
@@ -84,7 +86,7 @@
                                     <tr>
                                         <th style="width: 150px;">Продукт</th>
                                         <th style="width: 150px;">Масса, г</th>
-                                        <th style="width: 45px;">X</th>
+                                        <th style="width: 45px; color: #f08080;">X</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -100,7 +102,9 @@
                                                     {% if choice %}
                                                         <input type="hidden" name="choice" value="{{ choice }}">
                                                     {% endif %}
-                                                    <button type="submit" class="btn btn-sm btn-table" style="background-color: #f08080;">-</button>
+                                                    <button type="submit" class="btn btn-sm btn-table" style="background-color: #f08080;">
+                                                        <i class="fa-solid fa-minus"></i>
+                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -119,10 +123,10 @@
                     <table class="my-table" style="margin-bottom: 0;">
                         <thead>
                             <tr>
-                                <th>К</th>
-                                <th>Б</th>
-                                <th>Ж</th>
-                                <th>У</th>
+                                <th style="color: #95cf92;">К</th>
+                                <th style="color: #f08080;">Б</th>
+                                <th style="color: #f9cb9c;">Ж</th>
+                                <th style="color: #a8dadc;">У</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -137,7 +141,7 @@
 
                     <div style="text-align: center;">
                         <a href="{{ '/confirm_meal/' + choice }}" class="btn btn-primary">
-                            <img src="{{ url_for('static', filename='img/tick.png') }}" class="btn-icon">Готово
+                            <i class="fa-solid fa-check fa-btn"></i>Готово
                         </a>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask import Flask, render_template, redirect, abort, request, make_response, jsonify, session, url_for
+from flask import Flask, render_template, redirect, request, session, url_for
 from flask_mail import Mail, Message
 from flask_restful import Api
 
@@ -9,6 +9,7 @@ from data.Statistics import Statistics
 from data.Lifestyle import Lifestyle
 from data.Gender import Gender
 from data.Goal import Goal
+from sqlalchemy import or_, and_
 import data.db_session as db_session
 
 from data.UserResource import UserResource, UserListResource
@@ -18,10 +19,14 @@ from forms.LoginForm import LoginForm
 from forms.RegisterForm import RegisterForm
 from forms.VerificationForm import VerificationForm
 from forms.EditProfileForm import EditProfileForm
+from forms.AddProductForm import AddProductForm
+
+from bot.admin_bot import send_product_request_to_admin
 
 import requests
 import datetime
 import decimal
+import asyncio
 import random
 import json
 import os
@@ -91,9 +96,9 @@ def main():
             proteins, fats, carbohydrates = list(map(float, product["bgu"].split(",")))
             db_sess.add(Product(name=product["name"].lower(),
                                 calories=int(float(product["kcal"])),
-                                proteins=proteins,
-                                fats=fats,
-                                carbohydrates=carbohydrates))
+                                proteins=round(proteins, 1),
+                                fats=round(fats, 1),
+                                carbohydrates=round(carbohydrates, 1)))
 
     db_sess.commit()
     app.run()
@@ -191,6 +196,7 @@ def register():
                 "weight": weight
             }
             verification_code = random.randint(100000, 999999)
+            print(verification_code)
             session["verification_code"] = verification_code
             send_verification_email(email, verification_code)
             session["verification_sent"] = True
@@ -288,7 +294,9 @@ def add_meal():
     search = request.args.get("search", "")
 
     db_sess = db_session.create_session()
-    products = db_sess.query(Product).filter(Product.name.like(f"%{search.lower()}%"))
+    products = db_sess.query(Product).filter(
+        Product.name.like(f"%{search.lower()}%")).filter(
+        or_(and_(Product.public == True, Product.accepted == True), Product.user == current_user.id)).all()
 
     delete_id = request.args.get("remove_id", "")
 
@@ -334,6 +342,47 @@ def add_meal():
 
     return render_template("add_meal.html", avatar_url=get_avatar_url(), search_query=search,
                            available_products=products, added_products=added_products, choice=choice, total=total)
+
+
+@login_required
+@app.route("/add_product", methods=["GET", "POST"])
+def add_product():
+    form = AddProductForm()
+
+    if form.validate_on_submit():
+        name = form.product.data
+
+        calories = round(form.calories.data, 1)
+        proteins = round(form.proteins.data, 1)
+        fats = round(form.fats.data, 1)
+        carbohydrates = round(form.carbohydrates.data, 1)
+
+        is_public = form.is_public.data
+
+        db_sess = db_session.create_session()
+        product = Product(
+            name=name.lower(),
+            calories=calories,
+            proteins=proteins,
+            fats=fats,
+            carbohydrates=carbohydrates,
+            user=current_user.id,
+            public=is_public,
+            accepted=current_user.is_admin
+        )
+        db_sess.add(product)
+        db_sess.commit()
+
+        if not current_user.is_admin and product.public:
+            asyncio.run(send_product_request_to_admin(f"{request.root_url}api/product/{product.id}"))
+
+        return redirect("/add_meal")
+
+    elif request.method == "POST":
+        return render_template("add_product.html", avatar_url=get_avatar_url(), form=form,
+                               message="Неверный формат ввода величин!")
+
+    return render_template("add_product.html", avatar_url=get_avatar_url(), form=form)
 
 
 @login_required
@@ -383,12 +432,12 @@ def statistics():
     db_sess = db_session.create_session()
     stats = db_sess.query(Statistics).filter(Statistics.user == current_user.id).all()
 
-    dates = [""] + [str(x.date) for x in stats] + [""]
+    dates = [""] + [str(x.date) for x in sorted(stats, key=lambda obj: obj.date)] + [""]
 
-    calories_consumption = [0] + [x.calories for x in stats] + [0]
-    proteins_consumption = [0] + [x.proteins for x in stats] + [0]
-    fats_consumption = [0] + [x.fats for x in stats] + [0]
-    carbohydrates_consumption = [0] + [x.carbohydrates for x in stats] + [0]
+    calories_consumption = [0] + [float(x.calories) for x in stats] + [0]
+    proteins_consumption = [0] + [float(x.proteins) for x in stats] + [0]
+    fats_consumption = [0] + [float(x.fats) for x in stats] + [0]
+    carbohydrates_consumption = [0] + [float(x.carbohydrates) for x in stats] + [0]
 
     return render_template("statistics.html", avatar_url=get_avatar_url(), norms=get_norms(), dates=dates,
                            calorie_data=calories_consumption, protein_data=proteins_consumption,

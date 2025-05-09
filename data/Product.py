@@ -12,3 +12,9 @@ class Product(SqlAlchemyBase, SerializerMixin):
     proteins = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
     fats = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
     carbohydrates = sqlalchemy.Column(sqlalchemy.Float, nullable=False)
+
+    public = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=True)
+    accepted = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=True)
+
+    user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"), nullable=True)
+    user_obj = sqlalchemy.orm.relationship("User")

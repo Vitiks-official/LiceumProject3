@@ -3,7 +3,7 @@ from flask import jsonify
 from . import db_session
 from .Product import Product
 
-KEYS = ["name", "calories", "proteins", "fats", "carbohydrates"]
+KEYS = ["name", "calories", "proteins", "fats", "carbohydrates", "public", "accepted"]
 
 parser = reqparse.RequestParser()
 parser.add_argument("name", required=True)
@@ -26,6 +26,14 @@ class ProductResource(Resource):
         session = db_session.create_session()
         product = session.query(Product).get(product_id)
         return jsonify({"product": product.to_dict(only=KEYS)})
+
+    def post(self, product_id):
+        abort_if_product_not_found(product_id)
+        session = db_session.create_session()
+        product = session.query(Product).get(product_id)
+        product.accepted = True
+        session.commit()
+        return jsonify({"success": True})
 
     def delete(self, product_id):
         abort_if_product_not_found(product_id)
@@ -55,4 +63,3 @@ class ProductListResource(Resource):
         session.add(product)
         session.commit()
         return jsonify({"id": product.id})
-
