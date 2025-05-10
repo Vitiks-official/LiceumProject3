@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/article_style.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="main-container">
+        <div class="panel" style="max-width: 600px;">
+            <h2 style="margin-bottom: 0;">{{ article.title }}</h2>
+
+            {% if article.user %}
+                <p class="article-title" style="margin-bottom: 0;">Автор: {{ article.user_obj.name }} {{ article.user_obj.surname }}</p>
+            {% endif %}
+
+            <div style="overflow-x: hidden; overflow-y: scrollbar; width: 100%; max-height: 500px; margin-top: 15px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div class="article-pic" style="width: 250px; height: 250px;">
+                        <img src="{{ picture_url }}">
+                    </div>
+                </div>
+
+                {% for par in article.content.split("\n") %}
+                    <p class="main-par" align="justify" style="width: 100%; margin: 0 0 10px 0;word-wrap: break-word;">{{ par }}</p>
+                {% endfor %}
+            </div>
+
+            <a href="/article_list" class="btn btn-primary" style="margin: 10px 0 0 0;">
+                <i class="fa-solid fa-newspaper fa-btn"></i>Все статьи
+            </a>
+        </div>
+    </div>
+{% endblock %}

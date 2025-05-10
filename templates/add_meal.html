@@ -93,7 +93,7 @@
                                     {% if added_products %}
                                         {% for item in added_products %}
                                         <tr>
-                                            <td>{{ item["name"] }}</td>
+                                            <td style="word-wrap: break-word;">{{ item["name"] }}</td>
                                             <td>{{ item["mass"] }}</td>
                                             <td>
                                                 <form method="GET" action="/add_meal">

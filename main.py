@@ -7,6 +7,7 @@ from data.User import User
 from data.Product import Product
 from data.Statistics import Statistics
 from data.Lifestyle import Lifestyle
+from data.Article import Article
 from data.Gender import Gender
 from data.Goal import Goal
 from sqlalchemy import or_, and_
@@ -14,14 +15,16 @@ import data.db_session as db_session
 
 from data.UserResource import UserResource, UserListResource
 from data.ProductResource import ProductResource, ProductListResource
+from data.ArticleResource import ArticleResource
 
 from forms.LoginForm import LoginForm
 from forms.RegisterForm import RegisterForm
 from forms.VerificationForm import VerificationForm
 from forms.EditProfileForm import EditProfileForm
+from forms.AddArticleForm import AddArticleForm
 from forms.AddProductForm import AddProductForm
 
-from bot.admin_bot import send_product_request_to_admin
+from bot.admin_bot import send_product_request_to_admin, send_article_request_to_admin
 
 import requests
 import datetime
@@ -48,6 +51,7 @@ api.add_resource(UserListResource, "/api/user")
 api.add_resource(UserResource, "/api/user/<int:user_id>")
 api.add_resource(ProductListResource, "/api/product")
 api.add_resource(ProductResource, "/api/product/<int:product_id>")
+api.add_resource(ArticleResource, "/api/article/<int:article_id>")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -100,6 +104,22 @@ def main():
                                 fats=round(fats, 1),
                                 carbohydrates=round(carbohydrates, 1)))
 
+    if not db_sess.query(Article).first():
+        articles_content = list()
+        for i in range(3):
+            with open(f"static/txt/article_{i + 1}.txt", "r", encoding="utf-8") as file:
+                articles_content.append(file.read())
+
+        articles = [
+            Article(title="Основы здорового питания: баланс и разнообразие",
+                    content=articles_content[0]),
+            Article(title="Ключ к контролю веса: понимание калорий",
+                    content=articles_content[1]),
+            Article(title="Вода – незаменимый элемент здорового питания",
+                    content=articles_content[2])
+        ]
+        db_sess.add_all(articles)
+
     db_sess.commit()
     app.run()
 
@@ -128,7 +148,10 @@ def index():
         ratios = ["33", "33", "33"]
         pairs = [f"0/{norm}" for norm in get_norms()]
 
-    return render_template("index.html", avatar_url=get_avatar_url(), progress=progress, ratios=ratios, pairs=pairs)
+    articles = db_sess.query(Article).all()
+
+    return render_template("index.html", avatar_url=get_avatar_url(), progress=progress, ratios=ratios, pairs=pairs,
+                           articles=articles)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -444,6 +467,61 @@ def statistics():
                            fat_data=fats_consumption, carbs_data=carbohydrates_consumption)
 
 
+@login_required
+@app.route("/article_list")
+def article_list():
+    db_sess = db_session.create_session()
+    articles = db_sess.query(Article).filter(Article.accepted)
+    articles = zip(articles, [get_article_picture_url(x.id) for x in articles])
+
+    return render_template("article_list.html", avatar_url=get_avatar_url(), articles=articles)
+
+
+@login_required
+@app.route("/article/<int:article_id>")
+def article_browse(article_id):
+    db_sess = db_session.create_session()
+    article = db_sess.query(Article).get(article_id)
+
+    if not article.accepted:
+        return redirect("/article_list")
+
+    return render_template("article.html", avatar_url=get_avatar_url(), article=article,
+                           picture_url=get_article_picture_url(article.id))
+
+
+@login_required
+@app.route("/add_article", methods=["GET", "POST"])
+def add_article():
+    form = AddArticleForm()
+
+    if form.validate_on_submit():
+        title = form.title.data
+        content = form.content.data
+
+        article = Article(
+            title=title,
+            content=content,
+            user=current_user.id,
+            accepted=current_user.is_admin
+        )
+
+        db_sess = db_session.create_session()
+        db_sess.add(article)
+        db_sess.commit()
+
+        picture = form.picture.data
+        if picture:
+            picture.save(f"static/img/article/article_{article.id}.png")
+
+        if not current_user.is_admin:
+            asyncio.run(send_article_request_to_admin(f"{request.root_url}api/article/{article.id}"))
+
+        return redirect("/article_list")
+
+    return render_template("add_article.html", avatar_url=get_avatar_url(), form=form)
+
+
 @app.route("/logout")
 def logout():
     logout_user()
@@ -451,17 +529,42 @@ def logout():
 
 
 @login_required
-@app.route("/delete")
-def delete():
+@app.route("/delete_user")
+def delete_user():
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(current_user.id)
     db_sess.delete(user)
     db_sess.commit()
-    try:
-        os.remove(f"static/img/avatar/user_{current_user.id}.png")
-    except Exception as error:
-        print(error)
+
+    avatar_path = f"static/img/avatar/user_{current_user.id}.png"
+    if os.path.exists(avatar_path):
+        os.remove(avatar_path)
+
     return redirect("/")
+
+
+@login_required
+@app.route("/delete_article/<int:article_id>")
+def delete_article(article_id):
+    db_sess = db_session.create_session()
+    article = db_sess.query(Article).get(article_id)
+
+    if not (current_user.is_admin or current_user.id == article.user):
+        return redirect("/article_list")
+
+    db_sess.delete(article)
+    db_sess.commit()
+
+    pic_path = f"static/img/article/article_{article.id}.png"
+    if os.path.exists(pic_path):
+        os.remove(pic_path)
+
+    return redirect("/article_list")
+
+
+@app.route("/authors")
+def authors():
+    return render_template("authors.html", avatar_url=get_avatar_url())
 
 
 def send_verification_email(email, code):
@@ -475,6 +578,13 @@ def get_avatar_url():
     if os.path.exists("static/" + path):
         return url_for("static", filename=path)
     return url_for("static", filename="img/avatar/default.png")
+
+
+def get_article_picture_url(article_id):
+    path = f"img/article/article_{article_id}.png"
+    if os.path.exists("static/" + path):
+        return url_for("static", filename=path)
+    return url_for("static", filename="img/article/default.png")
 
 
 def get_norms():

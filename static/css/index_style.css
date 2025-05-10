@@ -80,31 +80,17 @@
 }
 
 .article-preview {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-orientation: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
 }
 
 .article-preview:last-child {
     border-bottom: none;
-}
-
-.article-preview h3 {
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 1.1em;
-}
-
-.article-description {
-    color: #555;
-    font-size: 0.9em;
-    margin-bottom: 10px;
-}
-
-.read-more-link {
-    color: #007bff;
-    text-decoration: none;
-    font-size: 0.9em;
 }
 
 .telegram-link {

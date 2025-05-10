@@ -12,7 +12,7 @@ dp = Dispatcher()
 
 async def send_product_request_to_admin(api_url):
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text="✅ Принять", callback_data=f"accept>{api_url}")
+    keyboard.button(text="✅ Принять", callback_data=f"accept_>{api_url}")
     keyboard.button(text="❌ Отклонить", callback_data=f"reject")
 
     product_data = requests.get(api_url).json()["product"]
@@ -31,12 +31,35 @@ async def send_product_request_to_admin(api_url):
     )
 
 
+async def send_article_request_to_admin(api_url):
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(text="✅ Принять", callback_data=f"accept_>{api_url}")
+    keyboard.button(text="❌ Отклонить", callback_data=f"reject")
+
+    article_data = requests.get(api_url).json()["article"]
+
+    message_text = f"Новая заявка на добавление статьи:\n\n"
+    message_text += f"Заголовок: {article_data['title']}\n"
+
+    user_data = requests.get(api_url.split("/api")[0] + f"/api/user/{article_data['user']}").json()["user"]
+
+    message_text += f"Автор: {user_data['name']} {user_data['surname']}\n"
+    message_text += f"Содержание: {article_data['content']}\n"
+
+    await bot.send_message(
+        chat_id=ADMIN_GROUP_ID,
+        text=message_text,
+        reply_markup=keyboard.as_markup()
+    )
+
+
 @dp.callback_query(lambda c: c.data.startswith("accept"))
 async def process_accept(callback_query: types.CallbackQuery):
-    api_url = callback_query.data[7:]
-    if not api_url:
+    api_url = callback_query.data.split("_")[1]
+    if api_url == ">":
         print(callback_query.data)
         return
+    api_url = api_url[1:]
 
     requests.post(api_url)
 

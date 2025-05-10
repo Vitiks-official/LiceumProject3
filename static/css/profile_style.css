@@ -119,35 +119,3 @@ form {
     margin-top: 10px;
     width: 100%;
 }
-
-.btn-secondary {
-    flex: 1;
-    background-color: #f9cb9c;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background-color: #EDC195;
-}
-
-.btn-secondary:active {
-    background-color: #EDC195 !important;
-    transform: scale(0.98);
-}
-
-.btn-danger {
-    flex: 1;
-    background-color: #f08080;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    border: none;
-}
-
-.btn-danger:hover {
-    background-color: #E37878;
-}
-
-.btn-danger:active {
-    background-color: #E37878 !important;
-    transform: scale(0.98);
-}

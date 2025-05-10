@@ -14,6 +14,7 @@
                 <h2>Приветствуем в Vital Stats!</h2>
                 <p class="main-par">
                     <strong>Vital Stats</strong> - Интуитивно понятный инструмент для контроля питания, позволяющий легко регистрировать приемы пищи и просматривать прогресс со статистикой.
+                    <br><a href="/authors" style="text-decoration: none; color: inherit;"><b>Авторы:</b></a> Бартюк Андрей, Беликов Артём.
                 </p>
                 <a href="https://t.me/your_telegram_channel" target="_blank" class="telegram-link">
                     <img src="{{ url_for('static', filename='img/telegram.png') }}" class="telegram-logo">
@@ -65,17 +66,23 @@
 
             <div class="right-panel">
                 <h2>Статьи</h2>
-                {% for article in articles %}
-                    <div class="article-preview">
-                        <h3>{{ article.title }}</h3>
-                        <p class="article-description">{{ article.description }}</p>
-                        <a href="#" class="read-more-link">Читать далее</a>
-                    </div>
-                {% endfor %}
+                <div style="overflow-x: hidden; overflow-y: scrollbar; width: 100%; height: 296px;">
+                    {% for article in articles %}
+                        <div class="article-preview">
+                            <p class="main-par" style="text-align: center; margin: 0 8px 0 0; width: 100%;">{{ article.title }}</p>
+                            <a href="/article/{{ article.id }}" class="btn btn-primary" style="width: 43px; margin: 0; padding: 5px;">
+                                <i class="fa-solid fa-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <a href="/article_list" class="btn btn-primary">
+                    <i class="fa-solid fa-newspaper fa-btn"></i>Все статьи
+                </a>
             </div>
         </div>
     </div>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
