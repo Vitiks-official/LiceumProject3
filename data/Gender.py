@@ -2,6 +2,7 @@ from .db_session import SqlAlchemyBase
 import sqlalchemy
 
 
+# Database model for genders
 class Gender(SqlAlchemyBase):
     __tablename__ = "gender"
 

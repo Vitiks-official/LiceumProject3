@@ -3,6 +3,7 @@ from .db_session import SqlAlchemyBase
 import sqlalchemy
 
 
+# Database model for statistics
 class Statistics(SqlAlchemyBase, SerializerMixin):
     __tablename__ = "statistics"
 

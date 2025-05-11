@@ -1,7 +1,5 @@
 from flask_restful import Resource, abort, reqparse
 from flask import jsonify
-from pygments.lexer import default
-
 from . import db_session
 from .User import User
 
@@ -20,6 +18,7 @@ parser.add_argument("is_admin", required=False, type=bool, default=False)
 parser.add_argument("password", required=True)
 
 
+# Function for checking the existence of a user
 def abort_if_user_not_found(user_id):
     session = db_session.create_session()
     user = session.query(User).get(user_id)
@@ -27,6 +26,7 @@ def abort_if_user_not_found(user_id):
         abort(404, message=f"User {user_id} not found")
 
 
+# Resource for interaction with a User by id
 class UserResource(Resource):
     def get(self, user_id):
         abort_if_user_not_found(user_id)
@@ -43,6 +43,7 @@ class UserResource(Resource):
         return jsonify({"success": True})
 
 
+# Resource for interaction with Users without id
 class UserListResource(Resource):
     def get(self):
         session = db_session.create_session()

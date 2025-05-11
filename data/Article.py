@@ -3,6 +3,7 @@ from .db_session import SqlAlchemyBase
 import sqlalchemy
 
 
+# Database model for articles
 class Article(SqlAlchemyBase, SerializerMixin):
     __tablename__ = "article"
 

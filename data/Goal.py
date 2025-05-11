@@ -2,6 +2,7 @@ from .db_session import SqlAlchemyBase
 import sqlalchemy
 
 
+# Database model for goals
 class Goal(SqlAlchemyBase):
     __tablename__ = "goal"
 

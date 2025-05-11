@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, EmailField, SubmitField, Integer
 from wtforms.validators import DataRequired, NumberRange
 
 
+# Form for user registration
 class RegisterForm(FlaskForm):
     email = EmailField("Электронная почта", validators=[DataRequired()])
     password = PasswordField("Пароль", validators=[DataRequired()])

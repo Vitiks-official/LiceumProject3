@@ -3,6 +3,7 @@ from .db_session import SqlAlchemyBase
 import sqlalchemy
 
 
+# Database model for products
 class Product(SqlAlchemyBase, SerializerMixin):
     __tablename__ = "product"
 

@@ -3,6 +3,7 @@ from wtforms import SubmitField, StringField, FloatField, BooleanField
 from wtforms.validators import DataRequired, NumberRange
 
 
+# Form for adding new product to the database
 class AddProductForm(FlaskForm):
     product = StringField("Название продукта", validators=[DataRequired()])
     calories = FloatField("Калории", validators=[DataRequired(), NumberRange(min=0, max=999)])

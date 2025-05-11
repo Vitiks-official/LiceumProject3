@@ -3,6 +3,7 @@ from wtforms import FileField, SelectField, IntegerField, SubmitField
 from wtforms.validators import DataRequired, NumberRange, Optional
 
 
+# Form for editing user's profile settings
 class EditProfileForm(FlaskForm):
     avatar = FileField("Загрузить новый аватар")
 

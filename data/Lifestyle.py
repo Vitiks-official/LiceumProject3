@@ -2,6 +2,7 @@ from .db_session import SqlAlchemyBase
 import sqlalchemy
 
 
+# Database model for lifestyles
 class Lifestyle(SqlAlchemyBase):
     __tablename__ = "lifestyle"
 

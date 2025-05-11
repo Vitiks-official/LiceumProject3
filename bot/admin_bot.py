@@ -10,6 +10,7 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 
+# Function for sending requests to add new product to the database to administration
 async def send_product_request_to_admin(api_url):
     keyboard = InlineKeyboardBuilder()
     keyboard.button(text="✅ Принять", callback_data=f"accept_>{api_url}")
@@ -31,6 +32,7 @@ async def send_product_request_to_admin(api_url):
     )
 
 
+# Function for sending requests to add new article to the database to administration
 async def send_article_request_to_admin(api_url):
     keyboard = InlineKeyboardBuilder()
     keyboard.button(text="✅ Принять", callback_data=f"accept_>{api_url}")
@@ -53,6 +55,7 @@ async def send_article_request_to_admin(api_url):
     )
 
 
+# Function for accepting the request
 @dp.callback_query(lambda c: c.data.startswith("accept"))
 async def process_accept(callback_query: types.CallbackQuery):
     api_url = callback_query.data.split("_")[1]
@@ -71,6 +74,7 @@ async def process_accept(callback_query: types.CallbackQuery):
     )
 
 
+# Function for rejecting the request
 @dp.callback_query(lambda c: c.data.startswith("reject"))
 async def process_reject(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id, text=f"Заявка отклонена!")
@@ -81,6 +85,7 @@ async def process_reject(callback_query: types.CallbackQuery):
     )
 
 
+# Main function, launching the bot
 async def main():
     await dp.start_polling(bot)
 

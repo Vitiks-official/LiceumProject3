@@ -57,12 +57,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+# User loader for flask-login
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
 
+# Main function, adding data to database, launching the application
 def main():
     db_session.global_init("db/calorie_tracker.db")
 
@@ -93,7 +95,7 @@ def main():
         db_sess.add_all(lifestyles)
 
     if not db_sess.query(Product).first():
-        with open("db/products.json", "r", encoding="utf-8") as file:
+        with open("static/json/products.json", "r", encoding="utf-8") as file:
             data = json.load(file)
 
         for product in data:
@@ -124,6 +126,7 @@ def main():
     app.run()
 
 
+# Index page of the app
 @app.route("/")
 @app.route("/index")
 def index():
@@ -154,6 +157,7 @@ def index():
                            articles=articles)
 
 
+# Page for logging the user in
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -176,6 +180,7 @@ def login():
     return render_template("login.html", form=form, message=message)
 
 
+# Page for user registration
 @app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -231,6 +236,7 @@ def register():
     return render_template("register.html", form=form, message=message)
 
 
+# Page for user's email verification during registration
 @app.route("/verify_email", methods=["GET", "POST"])
 def verify_email():
     if "verification_sent" not in session or "registration_data" not in session:
@@ -263,6 +269,7 @@ def verify_email():
     return render_template("verify_email.html", form=form, email=session["registration_data"]["email"], message=message)
 
 
+# Canceling user registration
 @app.route("/cancel_verification")
 def cancel_verification():
     session.pop("registration_data", None)
@@ -271,6 +278,7 @@ def cancel_verification():
     return redirect("/register")
 
 
+# Page for browsing and editing user's profile settings
 @login_required
 @app.route("/profile", methods=["GET", "POST"])
 def profile_settings():
@@ -311,6 +319,7 @@ def profile_settings():
     return render_template("profile.html", form=form, avatar_url=get_avatar_url(), imt=imt, result=result)
 
 
+# Page for adding a meal in the app
 @login_required
 @app.route("/add_meal")
 def add_meal():
@@ -367,6 +376,7 @@ def add_meal():
                            available_products=products, added_products=added_products, choice=choice, total=total)
 
 
+# Page for adding a new product to the database
 @login_required
 @app.route("/add_product", methods=["GET", "POST"])
 def add_product():
@@ -408,6 +418,7 @@ def add_product():
     return render_template("add_product.html", avatar_url=get_avatar_url(), form=form)
 
 
+# Page for confirming added meal
 @login_required
 @app.route("/confirm_meal/<string:choice>")
 def confirm_meal(choice):
@@ -449,11 +460,12 @@ def confirm_meal(choice):
     return redirect("/")
 
 
+# Page for browsing user's statistics
 @login_required
 @app.route("/statistics")
 def statistics():
     db_sess = db_session.create_session()
-    stats = db_sess.query(Statistics).filter(Statistics.user == current_user.id).all()
+    stats = db_sess.query(Statistics).filter(Statistics.user == current_user.id).all()[-7:]
 
     dates = [""] + [str(x.date) for x in sorted(stats, key=lambda obj: obj.date)] + [""]
 
@@ -467,6 +479,7 @@ def statistics():
                            fat_data=fats_consumption, carbs_data=carbohydrates_consumption)
 
 
+# Page for browsing all articles
 @login_required
 @app.route("/article_list")
 def article_list():
@@ -477,6 +490,7 @@ def article_list():
     return render_template("article_list.html", avatar_url=get_avatar_url(), articles=articles)
 
 
+# Page for browsing an article
 @login_required
 @app.route("/article/<int:article_id>")
 def article_browse(article_id):
@@ -490,6 +504,7 @@ def article_browse(article_id):
                            picture_url=get_article_picture_url(article.id))
 
 
+# Page for adding new article to the database
 @login_required
 @app.route("/add_article", methods=["GET", "POST"])
 def add_article():
@@ -522,12 +537,14 @@ def add_article():
     return render_template("add_article.html", avatar_url=get_avatar_url(), form=form)
 
 
+# Page for logging the user out
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect("/")
 
 
+# Page for deleting a user from the database
 @login_required
 @app.route("/delete_user")
 def delete_user():
@@ -543,6 +560,7 @@ def delete_user():
     return redirect("/")
 
 
+# Page for deleting an article from the database
 @login_required
 @app.route("/delete_article/<int:article_id>")
 def delete_article(article_id):
@@ -562,17 +580,20 @@ def delete_article(article_id):
     return redirect("/article_list")
 
 
+# Page for the authors
 @app.route("/authors")
 def authors():
     return render_template("authors.html", avatar_url=get_avatar_url())
 
 
+# Function for sending verification email during registration
 def send_verification_email(email, code):
     msg = Message("Подтверждение регистрации", recipients=[email])
     msg.body = f"Ваш код подтверждения: {code}"
     mail.send(msg)
 
 
+# Function for getting user's avatar url
 def get_avatar_url():
     path = f"img/avatar/user_{current_user.id}.png"
     if os.path.exists("static/" + path):
@@ -580,6 +601,7 @@ def get_avatar_url():
     return url_for("static", filename="img/avatar/default.png")
 
 
+# Function for getting article picture url
 def get_article_picture_url(article_id):
     path = f"img/article/article_{article_id}.png"
     if os.path.exists("static/" + path):
@@ -587,6 +609,7 @@ def get_article_picture_url(article_id):
     return url_for("static", filename="img/article/default.png")
 
 
+# Function for getting calories and micronutrient norms for the user
 def get_norms():
     bmr = (10 * current_user.weight + 6.25 * current_user.height - 5 * current_user.age +
            (5 if current_user.gender == 1 else -161))

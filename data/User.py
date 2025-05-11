@@ -5,6 +5,7 @@ from flask_login import UserMixin
 import sqlalchemy
 
 
+# Database model for users
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = "user"
 

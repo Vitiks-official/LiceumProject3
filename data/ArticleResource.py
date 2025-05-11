@@ -6,6 +6,7 @@ from .Article import Article
 KEYS = ["id", "title", "user", "content", "accepted"]
 
 
+# Function for checking the existence of an article
 def abort_if_article_not_found(article_id):
     session = db_session.create_session()
     article = session.query(Article).get(article_id)
@@ -13,6 +14,7 @@ def abort_if_article_not_found(article_id):
         abort(404, message=f"Product {article_id} not found")
 
 
+# Resource for interaction with an Article by id
 class ArticleResource(Resource):
     def get(self, article_id):
         abort_if_article_not_found(article_id)
