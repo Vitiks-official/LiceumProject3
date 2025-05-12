@@ -151,7 +151,7 @@ def index():
         ratios = ["33", "33", "33"]
         pairs = [f"0/{norm}" for norm in get_norms()]
 
-    articles = db_sess.query(Article).all()
+    articles = db_sess.query(Article).filter(Article.accepted).all()
 
     return render_template("index.html", avatar_url=get_avatar_url(), progress=progress, ratios=ratios, pairs=pairs,
                            articles=articles)
@@ -372,6 +372,11 @@ def add_meal():
             "id": product.id
         })
 
+    total["calories"] = round(total["calories"], 1)
+    total["proteins"] = round(total["proteins"], 1)
+    total["fats"] = round(total["fats"], 1)
+    total["carbohydrates"] = round(total["carbohydrates"], 1)
+
     return render_template("add_meal.html", avatar_url=get_avatar_url(), search_query=search,
                            available_products=products, added_products=added_products, choice=choice, total=total)
 
@@ -406,7 +411,7 @@ def add_product():
         db_sess.add(product)
         db_sess.commit()
 
-        if not current_user.is_admin and product.public:
+        if (not current_user.is_admin) and product.public:
             asyncio.run(send_product_request_to_admin(f"{request.root_url}api/product/{product.id}"))
 
         return redirect("/add_meal")
@@ -484,7 +489,7 @@ def statistics():
 @app.route("/article_list")
 def article_list():
     db_sess = db_session.create_session()
-    articles = db_sess.query(Article).filter(Article.accepted)
+    articles = db_sess.query(Article).filter(Article.accepted).all()
     articles = zip(articles, [get_article_picture_url(x.id) for x in articles])
 
     return render_template("article_list.html", avatar_url=get_avatar_url(), articles=articles)
@@ -549,6 +554,20 @@ def logout():
 @app.route("/delete_user")
 def delete_user():
     db_sess = db_session.create_session()
+
+    stats = db_sess.query(Statistics).filter(Statistics.user == current_user.id).all()
+    articles = db_sess.query(Article).filter(Article.user == current_user.id).all()
+    products = db_sess.query(Product).filter(Product.user == current_user.id).all()
+
+    for article in articles:
+        article.user = None
+
+    for stat in stats:
+        db_sess.delete(stat)
+
+    for product in products:
+        db_sess.delete(product)
+
     user = db_sess.query(User).get(current_user.id)
     db_sess.delete(user)
     db_sess.commit()
